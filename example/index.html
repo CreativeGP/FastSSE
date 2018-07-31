@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+		<head>
+				<meta charset="UTF-8"/>
+				<title></title>
+		</head>
+		<body>
+				<h1>Nagare Example (Chat App)</h1>
+
+				<p><input id="name" type="text" placeholder="Name" /></p>
+				<p><input id="tag" type="text" placeholder="tags" /></p>
+				<!-- <p><input id="pass" type="text" placeholder="Room Password" /></p> -->
+				<textarea cols="30" id="msg" rows="10" placeholder="Your message"></textarea>
+				<button type="button" onclick="send_msg();">Send</button>
+				
+				<ul id="view">
+						
+				</ul>
+
+				<script src="fastsse/js/lib.js"></script>
+				<script>
+				 var getUrlVars = function(){
+						 var vars = {}; 
+						 var param = location.search.substring(1).split('&');
+						 for(var i = 0; i < param.length; i++) {
+								 var keySearch = param[i].search(/=/);
+								 var key = '';
+								 if(keySearch != -1) key = param[i].slice(0, keySearch);
+								 var val = param[i].slice(param[i].indexOf('=', 0) + 1);
+								 if(key != '') vars[key] = decodeURI(val);
+						 } 
+						 return vars; 
+				 }
+
+				 let stream = new Stream('app.php?t='+getUrlVars().t, 'rec.php');
+
+				 function send_msg() {
+						 stream.send(
+								 document.getElementById('msg').value,
+								 document.getElementById('tag').value,
+						 );
+				 }
+
+				 stream.OnMessage = e => {
+						 const view = document.getElementById('view');
+
+						 let li = document.createElement('li');
+						 console.log(e);
+						 li.innerText = e.data;
+
+						 view.appendChild(li);
+				 };
+
+				 stream.OnError = err => {
+						 console.log("Error: ");
+						 console.log(err);
+				 };
+				</script>
+		</body>
+</html>

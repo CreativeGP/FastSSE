@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+		<head>
+				<meta charset="UTF-8"/>
+				<title>FastSSE</title>
+
+				<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+
+				<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+				<style>
+				 ::-moz-selection { background: skyblue; }
+				 ::selection { background: skyblue; }
+				 
+
+				 body {
+						 padding: 0; margin: 0;
+
+
+						 font-family: 'Open Sans', sans-serif;
+
+						 /* border: #6547e8 solid 10px; */
+				 }
+
+				 a {
+						 color: #6547e8;
+						 text-decoration: none;
+						 font-weight: bold;
+				 }
+				 a:hover {
+						 text-decoration: underline;
+						 background-color: #d9f44280;
+				 }
+
+				 h1 {
+						 padding: 0; margin: 0;
+						 font-weight: bold;
+						 font-size: 40px;
+				 }
+
+				 h2 {
+						 padding: 0; margin: 0;
+						 font-weight: bold;
+						 font-size: 30px;
+				 }
+
+				 #header {
+						 border: #6547e8 solid 10px;
+						 height: 50px;
+				 }
+
+				 #contents {
+						 display: flex;
+						 flex-direction: row;
+						 flex-wrap: wrap;
+				 }
+
+				 #contents > div {
+						 flex: auto;
+						 border: black 1px solid;
+						 border-left: none;
+						 border-top: none;
+						 padding: 10px;
+				 }
+
+				 #contents > div > img {
+						 width: 100%;
+						 height: 100%;
+				 }
+
+				 #contents > div.light
+				 {
+						 background-color: #f5f4f9;
+				 }
+
+				 #contents > div.dark
+				 {
+						 background-color: #bdbdbf;
+				 }
+
+				 #menu {
+						 position: absolute;
+						 right: 1em;
+						 top: 1.3em;
+						 display: flex;
+				 }
+
+				 #menu a {
+						 color: #6547e8;
+						 font-weight: bold;
+						 font-size: 20px;
+						 vertical-align: middle;
+						 margin: auto .8em;
+						 text-decoration: none;
+				 }
+
+				 details {
+						 background-color: white;
+				 }
+
+				 details summary {
+						 color: transparent;
+				 }
+				 details summary span {
+						 color: #000;
+				 }
+
+
+				 @media all and (max-width: 610px) {
+						 .mobile {
+								 display: block;
+						 }
+						 .pc {
+								 display: none !important;
+						 }
+				 }
+				 @media all and (min-width: 610px) {
+						 .mobile {
+								 display: none !important;
+						 }
+						 .pc {
+								 display: block;
+						 }
+				 }
+				 
+				</style>
+		</head>
+		<body>
+				<div id="header">
+						<h1>FastSSE</h1>
+
+						<div id="menu" class="pc">
+								<a href="doc.html">Document</a>
+								<a href="https://cretgp.com/">Demo</a>
+								<a href="https://cretgp.com/">Author</a>
+								<a href="https://github.com/CreativeGP/FastSSE">GitHub</a>
+						</div>
+
+						<div id="menu" class="mobile">
+								<details>
+										<summary><span>☰</span></summary>
+										<p><a href="">Document</a></p>
+										<p><a href="">Demo</a></p>
+										<p><a href="https://cretgp.com">Author</a></p>
+										<p><a href="https://github.com/CreativeGP/FastSSE">GitHub</a></p>
+								</details>
+						</div>
+				</div>
+
+				<div id="contents">
+						<div class="light" tyle="flex-basis: 99%">
+								<h2>What is FastSSE?</h2>
+								<p>
+										FastSSE is a simple library to create a realtime web app with the SSE (<a target="_blank" href="https://www.w3.org/TR/2009/WD-eventsource-20090421/">Server-Sent Events</a>).
+										It's composed of JavaScript and PHP code.
+										You can create a web app easily and fast by using them.
+								</p>
+								<p>
+										Here's the website of FastSSE as you know.
+										You can find the informations about FastSSE:
+										<ul>
+												<li>FastSSE Explanation</li>
+												<li>How to Install</li>
+												<li>Quick Start Guide</li>
+												<li>Documentation</li>
+												<li>Demonstration</li>
+												<li>etc...</li>
+										</ul>
+								</p>
+						</div>
+
+						<div class="light" style="flex-basis: 45%">
+								<img alt="" src="http://javaee.ch/assets/img/uploads/2016/04/sse_3_2016-04-17_11-15-43.png"/>
+						</div>
+
+						<div class="dark" style="flex-basis: 45%">
+								<h2>What is SSE?</h2>
+								<p>
+										<a target="_blank" href="https://www.w3.org/TR/2009/WD-eventsource-20090421/">SSE</a>
+										is a technology to use the server->client connection over HTTP.
+										It's very convenient and can run even in shared server.
+								</p>
+
+								<p>
+										This is <b>the Improved Comet</b> (<a href="https://en.wikipedia.org/wiki/Comet_(programming)" target="_blank">Comet</a>).
+								</p>
+
+								<p>
+										In Comet, we have to send a request to watch the event from server.
+										This way may cause <b>a lag</b>.
+								</p>
+
+								<p>
+										To improve this problem, SSE leverages <b>the chunked response</b> in HTTP.
+										So the client can watch the event in only none connection.
+								</p>
+						</div>
+
+						<div class="dark" style="flex-basis: 45%">
+								<h2>Installation</h2>
+								<p>
+										<ol type="1">
+												<li>Move the `client` folder in the directory that the client-side program has been put.</li>
+												<li>Move the `fastsse` folder in the directory that the server-side program has been put.</li>
+												<li>Include library files in the respective way, client-side and server-side (i.e. JavaScript and PHP for now).</li>
+										</ol>
+										
+								</p>
+						</div>
+
+						<div class="light" style="flex-basis: 45%">
+								<h2>Downloads</h2>
+								<p>
+										Please clone the GitHub repository or <a href="">download library files</a>.
+								</p>
+						</div>
+
+						<div class="light" style="flex-basis: 99%">
+								<h2>Quick Start Guide</h2>
+						</div>
+
+						<div style="flex-basis: 99%">
+								<p style="text-align: center">
+										Creative GP (C) 2018
+								</p>
+						</div>
+				</div>
+		</body>
+</html>
