@@ -37,9 +37,9 @@ class Buffer
 			$this->prev = file_get_contents($file_name);
 	}
 
-	public function write($data, $option = FILE_APPEND)
+	public function write($data, $option=FILE_APPEND)
 	{
-		file_put_contents($this->file_name, "$data\n");
+		file_put_contents($this->file_name, "$data\n", $option);
 	}
 
 	public function update()
@@ -78,7 +78,6 @@ class ConnectionBuffer extends Buffer
 
 	// Holds tags and their passwords (hash).
 	private $tags = [];
-	private $map_ip2id = [];
 	private $map_id2tags = [];
 
 	function __construct($file_name = FASTSSE_CONNBUF)
@@ -89,49 +88,55 @@ class ConnectionBuffer extends Buffer
 
 	public function taginfo($tagname)
 	{
-		if (isset($this->tags[$tagname]))
+		if (array_key_exists($tagname, $this->tags))
 			return $this->tags[$tagname];
 		else return false;
 	}
 
-	public function ip2id($ip)
+	public function verify_id($id)
 	{
-		if (isset($this->map_ip2id[$ip]))
-			return $this->map_ip2id[$ip];
-		else return -1;
+		return array_key_exists($id, $this->map_id2tags);
 	}
 
 	public function id2tags($id)
 	{
-		if (isset($this->map_id2tags[$id]))
+		if (array_key_exists($id, $this->map_id2tags))
 			return $this->map_id2tags[$id];
 		else return -1;
 	}
 
 	public function add_tag($id, $tagname, $password='')
 	{
-		if (!in_array($map_id2tags, $id, true)) return;
-		if (in_array($tagname, $this->tags, true)) return;
+		if (!array_key_exists($id, $this->map_id2tags)) return;
+		if (array_key_exists($tagname, $this->tags)) return;
 
 		$this->tags[$tagname] = new Tag($tagname, hash('sha256', $password), [$id]);
+
+		$this->upload();
 	}
 
-	public function ask_tag($id, $tagname, $password)
+	public function join_tag($id, $tagname, $password)
 	{
-		if (!in_array($tagname, $this->tags, true)) return;
-		if (!in_array($map_id2tags, $id, true)) return;
-		if ($this->tags[$tagname]->pass != ""
-		&& hash('sha256', $password) != $this->tags[$tagname]->pass) return;
+		if (!array_key_exists($id, $this->map_id2tags)) return false;
+		if (!array_key_exists($tagname, $this->tags)) return false;
+		if ($this->tags[$tagname]->password != "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+			&& hash('sha256', $password) != $this->tags[$tagname]->password)
+			return false;
+
+		// Already joined.
+		if (in_array($id, $this->tags[$tagname]->member, true))
+			return true;
 
 		array_push($this->tags[$tagname]->member, $id);
+		array_push($this->map_id2tags[$id], $tagname);
+		return true;
 	}
 
 	public function upload()
 	{
 		$data = serialize([
 			"f"=>$this->tags,
-			"g"=>$this->map_ip2id,
-			"h"=>$this->map_id2tags]);
+			"g"=>$this->map_id2tags]);
 		parent::write($data, 0);
 		$this->sync();
 	}
@@ -142,14 +147,12 @@ class ConnectionBuffer extends Buffer
 		$tmp = unserialize($this->now());
 
 		$this->tags = $tmp["f"];
-		$this->map_ip2id = $tmp["g"];
-		$this->map_id2tags = $tmp["h"];
+		$this->map_id2tags = $tmp["g"];
 	}
 
 	public function welcome()
 	{
-		$id = count($this->map_id2tags);
-		$this->map_ip2id[$_SERVER['REMOVE_ADDR']] = $id;
+		$id = uniqid();
 		$this->map_id2tags[$id] = [];
 
 		$this->upload();
@@ -157,11 +160,9 @@ class ConnectionBuffer extends Buffer
 		return $id;
 	}
 
-	public function farewell()
+	public function farewell($id)
 	{
-		$id = $this->ip2id($_SERVER['REMOVE_ADDR']);
-		unset($this->$map_id2tags[$id]);
-		unset($this->map_ip2id[$_SERVER['REMOVE_ADDR']]);
+		unset($this->map_id2tags[$id]);
 
 		foreach ($this->tags as $name => $t)
 		{
@@ -175,65 +176,114 @@ class ConnectionBuffer extends Buffer
 	}
 };
 
-class TagDistributor
+class ServerInterface
 {
-	function __construct($connbuf_filename = FASTSSE_CONNBUF)
+	protected function bad_request($msg="")
 	{
-		// q(add|join) t(wanted tags) and p(passwords)
-		// They can't contain newlines.
-		if (count($_GET) != 3 || !isset($_GET['q'])|| !isset($_GET['t']) || !isset($_GET['p'])) exit;
-		if (strpos($_GET['t'], "\n") !== false) exit;
-		if ($_GET['t'] == "") exit;
-		if (strpos($_GET['p'], "\n") !== false) exit;
+		echo "Bad request =X";
+		echo $msg;
+		exit();
+	}
 
-		$connbuf = new ConnectionBuffer($connbuf_filename);
-		$wanted_tags = explode(',', $_GET['t']);
-		$passes = explode(',', $_GET['p']);
+	protected function get_args($args)
+	{
+		$result = [];
 
-		if (count($wanted_tags) != count($passes)) exit;
-
-		for ($i = 0; $i < count($wanted_tags); $i += 1)
+		$n = count($args);
+		if (count($_GET) != $n)
+			return 'Invalid number arguments.';
+		
+		foreach ($args as $arg)
 		{
-			$connbuf->ask_tag(
-				$connbuf->ip2id($_SERVER['REMOVE_ADDR']),
-				$wanted_tags[i], $passes[i]);
+			if (!isset($_GET[$arg]))
+				return 'Invalid number arguments.';
+			if (strpos($_GET[$arg], "\n") !== false)
+				return 'Invalid character.';
+
+			// NOTE(cgp): `p` is used for passwords which can be null.
+			if ($_GET[$arg] == "" && $arg != 'p')
+				return 'Null arguments.';
+			
+			$result[$arg] = $_GET[$arg];
 		}
 
-		$connbuff->upload();
+		return $result;
 	}
 };
 
-class Receiver
+class TagDistributor extends ServerInterface
+{
+	function __construct($connbuf_filename = FASTSSE_CONNBUF)
+	{
+		// q(add|join) id t(wanted tags) and p(passwords)
+		// They can't contain newlines.
+		$args = $this->get_args(['q', 'id', 't', 'p']);
+		if (!is_array($args))
+			$this->bad_request($args);
+
+		// if (!ctype_digit($args['id'])) 
+		// 	$this->bad_request("`id` is incorrect.");
+
+		$connbuf = new ConnectionBuffer($connbuf_filename);
+		$wanted_tags = explode(',', $args['t']);
+		$passes = explode(',', $args['p']);
+
+		// Check if the id is valid.
+		if (!$connbuf->verify_id($args['id']))
+			$this->bad_request("No user found.");
+		
+		if (count($wanted_tags) != count($passes)) 
+			$this->bad_request("The number of tags and passwords don't match.");
+
+		for ($i = 0; $i < count($wanted_tags); $i += 1)
+		{
+			if (!$connbuf->join_tag($args['id'], $wanted_tags[$i], $passes[$i]))
+				$this->bad_request("Passwords incorrect.");
+		}
+
+		$connbuf->upload();
+	}
+};
+
+class Receiver extends ServerInterface
 {
 	function __construct(
 		$file_name = FASTSSE_BUF,
 		$connbuf_filename = FASTSSE_CONNBUF)
 	{
-		if (count($_GET) != 2 || !isset($_GET['q']) || !isset($_GET['t'])) exit;
-		if (strpos($_GET['t'], "\n") !== false) exit;
-		if (strpos(base64_decode($_GET['q']), "%\\n") !== false) exit;
-		if (base64_decode($_GET['q']) == "") exit;
-		if ($_GET['t'] == "") exit;
+		// NOTE(crium): Password is already checked in TagDistributor.
+
+		// id {int}
+		// t {base64} tags
+		// d {base64} datas
+		// They can't contain newlines.
+		$args = $this->get_args(['id', 't', 'd']);
+		if (!is_array($args)) 
+			$this->bad_request("get_args()");
+
+		if (strpos($args['d'], "%\\n") !== false) 
+			$this->bad_request("newline in data.");
+		// if (!ctype_digit($_GET['id'])) 
+		// 	$this->bad_request();
 
 		// Say hello to ConnectionBuffer and get id.
 		$connbuf = new ConnectionBuffer($connbuf_filename);
-		$id = $connbuf->ip2id($_SERVER['REMOVE_ADDR']);
-
-		// If the connection is not registered, abort.
-		if ($id == -1) exit;
 
 		// Check all the wanted tag is registered by this user.
-		$registered_tags = $connbuf->id2tags($connbuf->ip2id($_SERVER['REMOVE_ADDR']));
-		$wanted_tags = explode(',', $_GET['t']);
+		$registered_tags = $connbuf->id2tags($args['id']);
+		if ($registered_tags == -1)
+			$this->bad_request();
+		$wanted_tags = explode(',', $args['t']);
 		foreach ($wanted_tags as $tagname)
 		{
 			if (!in_array($tagname, $registered_tags, true))
-				exit;
+				$this->bad_request("tag `$tagname` is not registered.");
 		}
 
 		$buf = new Buffer($file_name);
-		$tags = str_replace(',', ' ', $_GET['t']);
-		$buf->write("$tags {$_GET['q']}");
+		$tags = str_replace(',', ' ', $args['t']);
+		$data = base64_encode($args['d']);
+		$buf->write("$tags $data");
 	}
 };
 
@@ -265,6 +315,8 @@ class Sender
 		echo "retry: 2000\n";
 
 		$id = $this->connbuf->welcome();
+		
+		echo "server: $id";
 
 		$this->connbuf->add_tag($id, 'general');
 
@@ -319,7 +371,7 @@ class Sender
 
 			if (connection_aborted())
 			{
-				$this->connbuf->farewell();
+				$this->connbuf->farewell($id);
 				exit();
 			}
 
