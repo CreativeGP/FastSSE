@@ -40,8 +40,16 @@ class TagDistributor extends ServerInterface
 
 		for ($i = 0; $i < count($wanted_tags); $i += 1)
 		{
-			if (!$connbuf->join_tag($args['id'], $wanted_tags[$i], $passes[$i]))
-				$this->bad_request("Passwords incorrect.");
+			if ($args['q'] == 'join')
+			{
+				if (!$connbuf->join_tag($args['id'], $wanted_tags[$i], $passes[$i]))
+					$this->bad_request("Passwords incorrect.");
+			}
+			else if ($args['q'] == 'add')
+			{
+				if (!$connbuf->add_tag($args['id'], $wanted_tags[$i], $passes[$i]))
+					$this->bad_request("The tagname is used.");
+			}
 		}
 
 		$connbuf->upload();

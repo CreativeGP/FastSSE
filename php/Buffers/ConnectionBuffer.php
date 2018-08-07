@@ -64,7 +64,7 @@ class ConnectionBuffer extends Buffer
 		if (!array_key_exists($id, $this->map_id2tags)) return;
 		if (array_key_exists($tagname, $this->tags)) return;
 
-		$this->tags[$tagname] = new Tag($tagname, hash('sha256', $password), [$id]);
+		$this->tags[$tagname] = new Tag($tagname, hash('sha256', $password), []);
 
 		$this->upload();
 	}
@@ -123,6 +123,10 @@ class ConnectionBuffer extends Buffer
 			if (($key = array_search($id, $t->member)) !== false)
 			{
 				unset($this->tags[$name]->member[$key]);
+				if (count($this->tags[$name]->member) == 0)
+				{
+					unset($this->tags[$name]);
+				}
 			}
 		}
 

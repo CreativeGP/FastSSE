@@ -1,60 +1,77 @@
 <!doctype html>
 <html lang="en">
-		<head>
-				<meta charset="UTF-8"/>
-				<title></title>
-		</head>
-		<body>
-				<h1>Nagare Example (Chat App)</h1>
+	<head>
+		<meta charset="UTF-8"/>
+		<title></title>
+	</head>
+	<body>
+		<h1>Nagare Example (Chat App)</h1>
 
-				<p><input id="name" type="text" placeholder="Name" /></p>
-				<p><input id="tag" type="text" placeholder="tags" /></p>
-				<!-- <p><input id="pass" type="text" placeholder="Room Password" /></p> -->
-				<textarea cols="30" id="msg" rows="10" placeholder="Your message"></textarea>
-				<button type="button" onclick="send_msg();">Send</button>
+		<p><input id="name" type="text" placeholder="Name" /></p>
+		<p><input id="tag" type="text" placeholder="tags" /></p>
+		<p><input id="pass" type="text" placeholder="passwords" /></p>
+		<!-- <p><input id="pass" type="text" placeholder="Room Password" /></p> -->
+		<textarea cols="30" id="msg" rows="10" placeholder="Your message"></textarea>
+		<button type="button" onclick="send_msg();">Send</button>
+		<button type="button" onclick="ask_tag();">Ask tags</button>
+		<button type="button" onclick="create_tag();">Create tags</button>
+		
+		<ul id="view">
 				
-				<ul id="view">
-						
-				</ul>
+		</ul>
 
-				<script src="fastsse/js/lib.js"></script>
-				<script>
-				 var getUrlVars = function(){
-						 var vars = {}; 
-						 var param = location.search.substring(1).split('&');
-						 for(var i = 0; i < param.length; i++) {
-								 var keySearch = param[i].search(/=/);
-								 var key = '';
-								 if(keySearch != -1) key = param[i].slice(0, keySearch);
-								 var val = param[i].slice(param[i].indexOf('=', 0) + 1);
-								 if(key != '') vars[key] = decodeURI(val);
-						 } 
-						 return vars; 
-				 }
+		<script src="fastsse/js/lib.js"></script>
+		<script>
+			var getUrlVars = function(){
+				var vars = {}; 
+				var param = location.search.substring(1).split('&');
+				for(var i = 0; i < param.length; i++) {
+					var keySearch = param[i].search(/=/);
+					var key = '';
+					if(keySearch != -1) key = param[i].slice(0, keySearch);
+					var val = param[i].slice(param[i].indexOf('=', 0) + 1);
+					if(key != '') vars[key] = decodeURI(val);
+				} 
+				return vars; 
+			}
 
-				 let stream = new Stream('app.php?t='+getUrlVars().t, 'rec.php');
+			let stream = new Stream('app.php', 'rec.php', 'shop.php');
 
-				 function send_msg() {
-						 stream.send(
-								 document.getElementById('msg').value,
-								 document.getElementById('tag').value,
-						 );
-				 }
+			function send_msg() {
+				stream.send(
+					document.getElementById('msg').value,
+					document.getElementById('tag').value
+				);
+			}
 
-				 stream.OnMessage = e => {
-						 const view = document.getElementById('view');
+			function ask_tag() {
+				stream.ask_tag(
+					document.getElementById('tag').value,
+					document.getElementById('pass').value
+				);
+			}
 
-						 let li = document.createElement('li');
-						 console.log(e);
-						 li.innerText = e.data;
+			function create_tag() {
+				stream.add_tag(
+					document.getElementById('tag').value,
+					document.getElementById('pass').value
+				);
+			}
 
-						 view.appendChild(li);
-				 };
+			stream.OnMessage = (e, data) => {
+				const view = document.getElementById('view');
 
-				 stream.OnError = err => {
-						 console.log("Error: ");
-						 console.log(err);
-				 };
-				</script>
-		</body>
+				let li = document.createElement('li');
+				console.log(e);
+				li.innerText = data;
+
+				view.appendChild(li);
+			};
+
+			stream.OnError = err => {
+				console.log("Error: ");
+				console.log(err);
+			};
+		</script>
+	</body>
 </html>

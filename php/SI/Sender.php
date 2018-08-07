@@ -38,13 +38,14 @@ class Sender
 		header('Cache-Control: no-cache');
 
 		echo ":" . str_repeat(" ", 2048) . "\n"; // 2 kB padding for IE
-		echo "retry: 2000\n";
+		echo "retry: 2000\n\n";
 
 		$id = $this->connbuf->welcome();
 		
-		echo "server: $id";
+		echo "event: server\n";
+		echo "data: $id\n\n";
 
-		$this->connbuf->add_tag($id, 'general');
+		// $this->connbuf->add_tag($id, 'general');
 
 		$counter = 0;
 
@@ -78,7 +79,8 @@ class Sender
 
 					if ($go)
 					{
-						echo "data: $contents \n\n";
+						echo "event: d\n";
+						echo "data: $contents\n\n";
 
 						ob_flush();
 						flush();
@@ -89,7 +91,7 @@ class Sender
 			else
 			{
 				if ($counter % $this->ping_freq == $this->ping_freq-1) {
-					echo "ping: a";
+					echo "data: a\n\n";
 					ob_flush();
 					flush();
 				}
