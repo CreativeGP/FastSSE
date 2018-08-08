@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+		<head>
+				<meta charset="UTF-8"/>
+				<title>FastSSE</title>
+
+				<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+
+				<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+				<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet"/>
+				<link href="style.css" rel="stylesheet"/>
+		</head>
+		<body>
+				<div id="header">
+						<a href="index.html"><h1>FastSSE</h1></a>
+
+						<div id="menu" class="pc">
+								<a href="doc.html">Document</a>
+								<a href="https://cretgp.com/">Demo</a>
+								<a href="https://cretgp.com/">Author</a>
+								<a href="https://github.com/CreativeGP/FastSSE">GitHub</a>
+						</div>
+
+						<div id="menu" class="mobile">
+								<details>
+										<summary><span>☰</span></summary>
+										<p><a href="">Document</a></p>
+										<p><a href="">Demo</a></p>
+										<p><a href="https://cretgp.com">Author</a></p>
+										<p><a href="https://github.com/CreativeGP/FastSSE">GitHub</a></p>
+								</details>
+						</div>
+				</div>
+
+				<div id="contents">
+						<div class="light" tyle="flex-basis: 99%">
+								<h2>Documentation</h2>
+								<span style="color:gray;"><em>Aug 07 2018&lt;Creative GP&gt;</em></span>
+
+								<p>
+										<img style="float: left; margin-right: 1em; " class="resp" alt="" src="https://pbs.twimg.com/media/DjfPBvjUwAAQ5ap.jpg"/>
+										<h3>Architecture</h3>
+										<p>
+												The left picture shows the architecture of FastSSE.
+												This is little complicated as you see.
+												Let's break it down.
+										</p>
+
+										<h4>Types of component</h4>
+										<p>
+												There are some types of component:
+										</p>
+										<ul>
+												<li><span style="color: red; font-weight: bold">Client Interfaces</span></li>
+												<li><span style="color: blue; font-weight: bold">Server Interfaces (SI)</span></li>
+												<li><span style="color: green; font-weight: bold">Buffers</span></li>
+										</ul>
+										<p>
+												The color of each type corresponds the picture.
+										</p>
+
+										<p>
+												First, FastSSE divides the world into three regions to provide realtime connections
+												even in shared severs:<br><br>
+												<b>Client-Side</b>, <b>Server Interface</b>, <b>Server Storage</b><br><br>
+												Each region is separated by the black line in the picture. The left side is <b>Client</b>, the upper-right space is <b>Server Interface</b>, and the lower-right space is <b>Server Storage</b>.
+										</p>
+
+										<h4>Client-Side</h4>
+										<p>
+												This is a client, in which runs JavaScript. You can see two red rectangles named "OnMessage" and "OnError", these are event handlers (Client Interfaces).<br>
+												"OnMessage" is called when the client received data, "OnError" is called when errors occured.<br>
+												This is very simple.
+										</p>
+
+										<h4>Server-Side</h4>
+										<p>
+												The right side is server-side. Server-side is divided into two regions, Server Interface and Server Storage, as you know.
+												There are Buffers in Server Storage, and these are files actually
+												
+										</p>
+
+										<div style="clear: both"></div>
+								</p>
+						</div>
+
+						<div style="flex-basis: 99%">
+								<p style="text-align: center">
+										Creative GP (C) 2018
+								</p>
+						</div>
+
+						<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+						<script>hljs.initHighlightingOnLoad();</script>
+				</div>
+		</body>
+</html>
