@@ -1,6 +1,6 @@
 <?php
 
-require_once "../fastsse/php/SI/Sender.php";
+require_once "../fastsse/SI/Sender.php";
 
 // $my_tags = explode(',', $_GET['t']);
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once "../fastsse/php/SI/TagDistributor.php";
+require_once "../fastsse/SI/TagDistributor.php";
 
 // $my_tags = explode(',', $_GET['t']);
 
