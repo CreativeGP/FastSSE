@@ -62,8 +62,10 @@ class Sender
 
 				foreach ($data as $d)
 				{
-					$tags = array_values(array_diff(explode(' ', $d), [end(explode(' ', $d))]));
-					$contents = base64_decode(end(explode(' ', $d)));
+					preg_match("/(.*) '(.*)' (.*)/", $d, $out);
+					$contents = base64_decode($out[1]);
+					$tags = explode(' ', $out[2]);
+					$sender_id = $out[3];
 
 					$contents = encode_nl($contents);
 
@@ -80,7 +82,7 @@ class Sender
 					if ($go)
 					{
 						echo "event: d\n";
-						echo "data: $contents\n\n";
+						echo "data: $sender_id $contents\n\n";
 
 						ob_flush();
 						flush();

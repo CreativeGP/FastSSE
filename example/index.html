@@ -20,7 +20,7 @@
 				
 		</ul>
 
-		<script src="fastsse/js/lib.js"></script>
+		<script src="client/lib.js"></script>
 		<script>
 			var getUrlVars = function(){
 				var vars = {}; 
@@ -35,7 +35,11 @@
 				return vars; 
 			}
 
-			let stream = new Stream('app.php', 'rec.php', 'shop.php');
+			let stream = new Stream('client/app.php', 'client/rec.php', 'client/shop.php', () => {
+				let li = document.createElement('li');
+				li.innerText = '[Info] Connection Established.';
+				view.appendChild(li);
+			});
 
 			function send_msg() {
 				stream.send(
@@ -58,12 +62,12 @@
 				);
 			}
 
-			stream.OnMessage = (e, data) => {
+			stream.OnMessage = (e, from, data) => {
 				const view = document.getElementById('view');
 
 				let li = document.createElement('li');
 				console.log(e);
-				li.innerText = data;
+				li.innerText = `"${data}" From ${from}`;
 
 				view.appendChild(li);
 			};

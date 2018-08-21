@@ -1,14 +1,36 @@
 <?php
 /*
-   FastSSE v0.1.1
+FastSSE v0.1.1
 
-   Creative GP
-   2018/07/29 (yyyy/mm/dd)
+Creative GP
+2018/07/29 (yyyy/mm/dd)
  */
 
 namespace FastSSE;
 
 function encode_nl($s)
 {
-	return str_replace("\n", "%\\n", $s);
+    return str_replace("\n", "%\\n", $s);
+}
+
+function get_client_ip()
+{
+    $ipaddress = '';
+    if (getenv('HTTP_CLIENT_IP')) {
+        $ipaddress = getenv('HTTP_CLIENT_IP');
+    } else if (getenv('HTTP_X_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    } else if (getenv('HTTP_X_FORWARDED')) {
+        $ipaddress = getenv('HTTP_X_FORWARDED');
+    } else if (getenv('HTTP_FORWARDED_FOR')) {
+        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    } else if (getenv('HTTP_FORWARDED')) {
+        $ipaddress = getenv('HTTP_FORWARDED');
+    } else if (getenv('REMOTE_ADDR')) {
+        $ipaddress = getenv('REMOTE_ADDR');
+    } else {
+        $ipaddress = 'UNKNOWN';
+    }
+
+    return $ipaddress;
 }

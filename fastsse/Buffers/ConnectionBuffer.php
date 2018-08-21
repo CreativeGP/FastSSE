@@ -63,6 +63,7 @@ class ConnectionBuffer extends Buffer
 	{
 		if (!array_key_exists($id, $this->map_id2tags)) return;
 		if (array_key_exists($tagname, $this->tags)) return;
+		if (strpos($tagname, '\'') === true) return;
 
 		$this->tags[$tagname] = new Tag($tagname, hash('sha256', $password), []);
 

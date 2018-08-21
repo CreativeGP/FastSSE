@@ -7,7 +7,7 @@
 'use strict';
 
 class Stream {
-	constructor(sender, receiver, distributor) {
+	constructor(sender, receiver, distributor, ready_callback) {
 		this.es = new EventSource(sender);
 
 		this.receiver = receiver;
@@ -28,6 +28,7 @@ class Stream {
 			let self = this;
 			this.es.addEventListener('server', function (e) {
 				self.id = e.data;
+				ready_callback();
 			}, false);
 		}
 	}
@@ -65,7 +66,7 @@ class Stream {
 
 	set OnMessage(func) {
 		// Decode newlines and call `func`
-		this.onMessage = e => func(e, e.data.replace(/%\\n/g, "\n"));
+		this.onMessage = e => func(e, e.data.split(' ')[0], e.data.substr(e.data.split(' ')[0].length+1).replace(/%\\n/g, "\n"));
 		this.es.addEventListener('d', this.onMessage);
 	}
 

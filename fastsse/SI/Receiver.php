@@ -53,6 +53,6 @@ class Receiver extends ServerInterface
 		$buf = new Buffer($file_name);
 		$tags = str_replace(',', ' ', $args['t']);
 		$data = base64_encode($args['d']);
-		$buf->write("$tags $data");
+		$buf->write("$data '$tags' ".$args['id']);
 	}
 };
